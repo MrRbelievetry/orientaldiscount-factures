@@ -1,9 +1,10 @@
 import * as pdfjs from './vendor/pdf.mjs';
 import {analyse,modify,outputName} from './engine.js';
+import {verifyRendering} from './preview.js';
 pdfjs.GlobalWorkerOptions.workerSrc=new URL('./vendor/pdf.worker.mjs',import.meta.url).href;
 const $=id=>document.getElementById(id);
 let bytes=null,name='',url=null,revision=0,busy=false;
-const clearResult=()=>{if(url)URL.revokeObjectURL(url);url=null;$('download').hidden=true;$('reset').hidden=true;$('status').textContent='';$('status').className='';};
+const clearResult=()=>{if(url)URL.revokeObjectURL(url);url=null;$('download').hidden=true;$('reset').hidden=true;$('preview-panel').hidden=true;$('status').textContent='';$('status').className='';};
 const message=(text,type='')=>{$('status').textContent=text;$('status').className=type;};
 $('file').addEventListener('change',async()=>{
   const current=++revision;clearResult();bytes=null;$('generate').disabled=true;$('file-status').textContent='';
@@ -22,8 +23,10 @@ $('form').addEventListener('submit',async e=>{
   try{
     const [fontBytes,boldBytes]=await Promise.all(['Vera.ttf','VeraBd.ttf'].map(async f=>{const r=await fetch(new URL('./fonts/'+f,import.meta.url));if(!r.ok)throw new Error('Impossible de charger les polices. Rechargez la page.');return new Uint8Array(await r.arrayBuffer());}));
     const result=await modify(bytes,$('address').value,name,{pdfjs,lib:window.PDFLib,fontkit:window.fontkit,fontBytes,boldBytes});
+    await verifyRendering(bytes,result.bytes,await analyse(bytes,pdfjs),$('preview'));
     url=URL.createObjectURL(new Blob([result.bytes],{type:'application/pdf'}));$('download').href=url;$('download').download=result.filename;$('download').textContent='Télécharger '+result.filename;$('download').hidden=false;$('reset').hidden=false;
-    message('Facture prête. Adresse remplacée ; facturation, montants et autres textes contrôlés.','success');$('download').click();
+    $('preview-panel').hidden=false;
+    message('Facture prête. Adresse remplacée ; textes, montants et rendu hors adresse contrôlés.','success');$('download').click();
   }catch(e){message(e.message||'Le traitement a échoué. Aucun document n’a été téléchargé.','error');}
   finally{busy=false;$('generate').disabled=!bytes;$('file').disabled=false;$('address').disabled=false;}
 });

@@ -25,14 +25,14 @@ Les versions directes sont exactes dans package.json. Le verrou complet est prod
 
 ## Maintenance
 
-Node.js 22 : `npm ci` (ou `npm install` pour la première installation), puis `npm test` et `npm run build`. Servir `dist/` avec un serveur statique. Les fontes source sont en base64 pour permettre un transfert fiable ; le build les décode.
+Node.js 22 : `npm ci`, puis `npm test` et `npm run build`. Servir `dist/` avec un serveur statique. Les fontes source sont en base64 pour permettre un transfert fiable ; le build les décode. Le verrou package-lock.json est conservé dans le dépôt.
 
-`engine.js` contient la détection, le parseur restrictif et les vérifications ; `app.js` gère l’interface et le téléchargement. Ne jamais ajouter de facture réelle aux tests ou au dépôt. Tester avec les factures privées localement et avec des documents synthétiques pour l’intégration continue.
+`engine.js` contient la détection, le parseur restrictif et les vérifications ; `app.js` gère l’interface et le téléchargement. `preview.js` compare le rendu original et final, pixel par pixel hors du bloc de livraison, avant d’autoriser le téléchargement et de présenter un aperçu. Ne jamais ajouter de facture réelle aux tests ou au dépôt. Tester avec les factures privées localement et avec des documents synthétiques pour l’intégration continue.
 
 Avant toute évolution du moteur : comparer visuellement original/résultat, vérifier les coordonnées extractibles uniquement dans le bloc livraison, comparer la facturation, les montants et l’ensemble des pixels hors du bloc. Tester une adresse courte, longue, accentuée et un document incompatible. Les tests unitaires seuls ne certifient pas un nouveau modèle de facture.
 
 ## GitHub Pages
 
-Dans Settings → Pages, choisir **GitHub Actions**. Le workflow `.github/workflows/pages.yml` installe les dépendances, exécute les tests, prépare `dist/` puis déploie. Tout push sur main relance ce processus. Le verrou est également disponible dans l’artifact `dependency-lock` du premier build.
+Dans Settings → Pages, choisir **GitHub Actions**. Le workflow `.github/workflows/pages.yml` installe les dépendances verrouillées, exécute les tests, prépare `dist/` puis déploie. Tout push sur main relance ce processus. Si le verrou manque lors de la première installation, le workflow le crée et l’enregistre dans le dépôt.
 
 Les factures restent uniquement en mémoire sur l’ordinateur. GitHub reçoit les requêtes de chargement des fichiers statiques, jamais les PDF ni les adresses. Fermer l’onglet efface l’état de travail.

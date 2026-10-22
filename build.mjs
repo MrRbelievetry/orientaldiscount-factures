@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 await fs.mkdir('dist/vendor',{recursive:true});
 await fs.mkdir('dist/fonts',{recursive:true});
-for(const file of ['index.html','style.css','app.js','engine.js'])await fs.copyFile(file,'dist/'+file);
+for(const file of ['index.html','style.css','app.js','engine.js','preview.js'])await fs.copyFile(file,'dist/'+file);
 for(const [from,to]of [
  ['pdf-lib/dist/pdf-lib.min.js','pdf-lib.min.js'],
  ['@pdf-lib/fontkit/dist/fontkit.umd.min.js','fontkit.umd.min.js'],
