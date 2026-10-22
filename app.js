@@ -30,5 +30,5 @@ $('form').addEventListener('submit',async e=>{
   }catch(e){message(e.message||'Le traitement a échoué. Aucun document n’a été téléchargé.','error');}
   finally{busy=false;$('generate').disabled=!bytes;$('file').disabled=false;$('address').disabled=false;}
 });
-$('reset').addEventListener('click',()=>{revision++;clearResult();bytes=null;name='';$('form').reset();$('generate').disabled=true;$('filename').textContent='Facture OrientalDiscount au format A4 · 20 Mo maximum';$('file-status').textContent='';$('output-name').textContent='BX FA[numéro].pdf';$('file').focus();});
+$('reset').addEventListener('click',()=>{revision++;clearResult();bytes=null;name='';HTMLFormElement.prototype.reset.call($('form'));$('generate').disabled=true;$('filename').textContent='Facture OrientalDiscount au format A4 · 20 Mo maximum';$('file-status').textContent='';$('output-name').textContent='BX FA[numéro].pdf';$('file').focus();});
 window.addEventListener('pagehide',()=>{if(url)URL.revokeObjectURL(url);});
