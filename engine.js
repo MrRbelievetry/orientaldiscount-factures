@@ -81,6 +81,14 @@ export async function analyse(bytes, pdfjs) {
   }finally{await doc.destroy();}
 }
 const fingerprint=i=>`${i.str}|${i.transform.map(v=>v.toFixed(2)).join(',')}`;
+
+const addressLine = text => text.normalize('NFC').replace(/\s+/gu,' ').trim();
+export function addressTextMatches(items, lines) {
+  const actual = items.map(item=>addressLine(item.str)).filter(Boolean);
+  const expected = ['Adresse de livraison', ...lines].map(addressLine).filter(Boolean);
+  return JSON.stringify(actual) === JSON.stringify(expected);
+}
+
 export async function modify(bytes, address, filename, deps) {
   const {pdfjs,lib,fontkit,fontBytes,boldBytes}=deps;
   const lines=address.replace(/\r\n?/g,'\n').split('\n');
@@ -126,7 +134,6 @@ export async function modify(bytes, address, filename, deps) {
     const fresh=after.pages[n].items.filter(i=>i.str.trim()&&!(n===page&&after.zone.selected.includes(i))).map(fingerprint).sort();
     if(JSON.stringify(old)!==JSON.stringify(fresh))fail('Le contrôle de conservation des textes et montants a échoué. Aucun fichier ne sera téléchargé.');
   }
-  const newText=after.zone.selected.map(i=>i.str).join('\n');
-  if(newText!=='Adresse de livraison\n'+lines.filter(l=>l.trim()).join('\n'))fail('Le contrôle de la nouvelle adresse a échoué. Aucun fichier ne sera téléchargé.');
+  if(!addressTextMatches(after.zone.selected,lines))fail('Le contrôle de la nouvelle adresse a échoué. Aucun fichier ne sera téléchargé.');
   return {bytes:output,filename:outputName(before.text,filename),size,removed:zone.selected.length};
 }
