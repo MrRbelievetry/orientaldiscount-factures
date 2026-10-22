@@ -1,5 +1,5 @@
 import * as pdfjs from './vendor/pdf.mjs';
-import {analyse,modify,outputName} from './engine.js';
+import {analyse,modify,outputName} from './engine.js?v=1.0.1';
 import {verifyRendering} from './preview.js';
 pdfjs.GlobalWorkerOptions.workerSrc=new URL('./vendor/pdf.worker.mjs',import.meta.url).href;
 const $=id=>document.getElementById(id);
